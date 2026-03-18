@@ -40,6 +40,7 @@
 *.sdf
 *.VC.db
 *.VC.opendb
+.vsconfig
 
 # Precompiled Assets
 SourceArt/**/*.png
@@ -72,3 +73,13 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# JetBrains Rider
+.idea/
+*.sln.DotSettings.user
+*.uproject.DotSettings.user
+
+# VS
+UpgradeLog*.htm
+UpgradeLog*.xml
+
