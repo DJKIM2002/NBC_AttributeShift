@@ -3,10 +3,17 @@
 #include "Character/ASCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "InputActionValue.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
+#include "InputModifiers.h"
+#include "InputTriggers.h"
+#include "Manager/ASLogManager.h"
 
 AASPlayerController::AASPlayerController()
 {
+	bReplicates = false;
+	InitializeInputAssets();
+	ConfigureDefaultMappingContext();
 }
 
 void AASPlayerController::BeginPlay()
@@ -40,6 +47,7 @@ void AASPlayerController::SetupInput()
 
 	if (EnhancedInput == nullptr || ASCharacter == nullptr)
 	{
+		FASLogManager::Warning(TEXT("Input binding skipped because EnhancedInputComponent or Character is missing."));
 		return;
 	}
 
@@ -59,11 +67,6 @@ void AASPlayerController::SetupInput()
 		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, ASCharacter, &AASCharacter::StopJump);
 	}
 
-	if (InteractAction != nullptr)
-	{
-		EnhancedInput->BindAction(InteractAction, ETriggerEvent::Started, ASCharacter, &AASCharacter::TryInteract);
-	}
-
 	if (ExtractAction != nullptr)
 	{
 		EnhancedInput->BindAction(ExtractAction, ETriggerEvent::Started, this, &AASPlayerController::RequestExtract);
@@ -73,22 +76,21 @@ void AASPlayerController::SetupInput()
 	{
 		EnhancedInput->BindAction(InjectAction, ETriggerEvent::Started, this, &AASPlayerController::RequestInject);
 	}
+
+	if (InteractAction != nullptr)
+	{
+		EnhancedInput->BindAction(InteractAction, ETriggerEvent::Started, ASCharacter, &AASCharacter::TryInteract);
+	}
 }
 
 void AASPlayerController::RequestExtract()
 {
-	if (AASCharacter* ASCharacter = GetASCharacter())
-	{
-		ASCharacter->TryInteract();
-	}
+	FASLogManager::Log(TEXT("Extract interaction requested."));
 }
 
 void AASPlayerController::RequestInject()
 {
-	if (AASCharacter* ASCharacter = GetASCharacter())
-	{
-		ASCharacter->TryInteract();
-	}
+	FASLogManager::Log(TEXT("Inject interaction requested."));
 }
 
 void AASPlayerController::UpdateHUD()
@@ -98,4 +100,54 @@ void AASPlayerController::UpdateHUD()
 AASCharacter* AASPlayerController::GetASCharacter() const
 {
 	return Cast<AASCharacter>(GetPawn());
+}
+
+void AASPlayerController::InitializeInputAssets()
+{
+	DefaultMappingContext = CreateDefaultSubobject<UInputMappingContext>(TEXT("DefaultMappingContext"));
+
+	MoveAction = CreateDefaultSubobject<UInputAction>(TEXT("MoveAction"));
+	MoveAction->ValueType = EInputActionValueType::Axis2D;
+
+	LookAction = CreateDefaultSubobject<UInputAction>(TEXT("LookAction"));
+	LookAction->ValueType = EInputActionValueType::Axis2D;
+
+	JumpAction = CreateDefaultSubobject<UInputAction>(TEXT("JumpAction"));
+	JumpAction->ValueType = EInputActionValueType::Boolean;
+
+	InteractAction = CreateDefaultSubobject<UInputAction>(TEXT("InteractAction"));
+	InteractAction->ValueType = EInputActionValueType::Boolean;
+
+	ExtractAction = CreateDefaultSubobject<UInputAction>(TEXT("ExtractAction"));
+	ExtractAction->ValueType = EInputActionValueType::Boolean;
+
+	InjectAction = CreateDefaultSubobject<UInputAction>(TEXT("InjectAction"));
+	InjectAction->ValueType = EInputActionValueType::Boolean;
+}
+
+void AASPlayerController::ConfigureDefaultMappingContext()
+{
+	if (DefaultMappingContext == nullptr)
+	{
+		return;
+	}
+
+	FEnhancedActionKeyMapping& MoveForwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::W);
+	MoveForwardMapping.Modifiers.Add(NewObject<UInputModifierSwizzleAxis>(this));
+	CastChecked<UInputModifierSwizzleAxis>(MoveForwardMapping.Modifiers.Last())->Order = EInputAxisSwizzle::YXZ;
+
+	FEnhancedActionKeyMapping& MoveBackwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::S);
+	MoveBackwardMapping.Modifiers.Add(NewObject<UInputModifierNegate>(this));
+	MoveBackwardMapping.Modifiers.Add(NewObject<UInputModifierSwizzleAxis>(this));
+	CastChecked<UInputModifierSwizzleAxis>(MoveBackwardMapping.Modifiers.Last())->Order = EInputAxisSwizzle::YXZ;
+
+	FEnhancedActionKeyMapping& MoveLeftMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::A);
+	MoveLeftMapping.Modifiers.Add(NewObject<UInputModifierNegate>(this));
+
+	DefaultMappingContext->MapKey(MoveAction, EKeys::D);
+	DefaultMappingContext->MapKey(LookAction, EKeys::Mouse2D);
+	DefaultMappingContext->MapKey(JumpAction, EKeys::SpaceBar);
+	DefaultMappingContext->MapKey(InteractAction, EKeys::F);
+	DefaultMappingContext->MapKey(ExtractAction, EKeys::Q);
+	DefaultMappingContext->MapKey(InjectAction, EKeys::E);
 }

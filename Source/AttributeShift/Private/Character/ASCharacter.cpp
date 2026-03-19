@@ -1,12 +1,22 @@
 #include "Character/ASCharacter.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "InputActionValue.h"
 #include "Interaction/Interfaces/ASInteractableInterface.h"
 
 AASCharacter::AASCharacter()
 	: InteractionTraceDistance(400.0f)
+	, LookUpRate(1.0f)
 {
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = 650.0f;
+	GetCharacterMovement()->AirControl = 0.35f;
 }
 
 void AASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

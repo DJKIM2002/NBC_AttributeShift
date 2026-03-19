@@ -8,4 +8,6 @@ UCLASS()
 class ATTRIBUTESHIFT_API AASHUDBase : public AHUD
 {
 	GENERATED_BODY()
+
+	// 공통 HUD 베이스 클래스
 };

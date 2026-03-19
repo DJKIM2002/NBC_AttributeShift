@@ -1,11 +1,20 @@
 #include "Core/ASGameMode.h"
 
+#include "Character/ASCharacter.h"
 #include "Core/ASGameState.h"
+#include "Core/ASPlayerController.h"
+#include "Core/ASPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/HUD/ASHUDBase.h"
 
 AASGameMode::AASGameMode()
 	: NextStageName(NAME_None)
 {
+	DefaultPawnClass = AASCharacter::StaticClass();
+	PlayerControllerClass = AASPlayerController::StaticClass();
+	PlayerStateClass = AASPlayerState::StaticClass();
+	GameStateClass = AASGameState::StaticClass();
+	HUDClass = AASHUDBase::StaticClass();
 }
 
 bool AASGameMode::CheckStageClear() const
