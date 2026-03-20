@@ -123,6 +123,16 @@ void AASPlayerController::InitializeInputAssets()
 
 	InjectAction = CreateDefaultSubobject<UInputAction>(TEXT("InjectAction"));
 	InjectAction->ValueType = EInputActionValueType::Boolean;
+
+	MoveForwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("MoveForwardSwizzleModifier"));
+	MoveForwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
+
+	MoveBackwardNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("MoveBackwardNegateModifier"));
+
+	MoveBackwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("MoveBackwardSwizzleModifier"));
+	MoveBackwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
+
+	MoveLeftNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("MoveLeftNegateModifier"));
 }
 
 void AASPlayerController::ConfigureDefaultMappingContext()
@@ -133,16 +143,14 @@ void AASPlayerController::ConfigureDefaultMappingContext()
 	}
 
 	FEnhancedActionKeyMapping& MoveForwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::W);
-	MoveForwardMapping.Modifiers.Add(NewObject<UInputModifierSwizzleAxis>(this));
-	CastChecked<UInputModifierSwizzleAxis>(MoveForwardMapping.Modifiers.Last())->Order = EInputAxisSwizzle::YXZ;
+	MoveForwardMapping.Modifiers.Add(MoveForwardSwizzleModifier);
 
 	FEnhancedActionKeyMapping& MoveBackwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::S);
-	MoveBackwardMapping.Modifiers.Add(NewObject<UInputModifierNegate>(this));
-	MoveBackwardMapping.Modifiers.Add(NewObject<UInputModifierSwizzleAxis>(this));
-	CastChecked<UInputModifierSwizzleAxis>(MoveBackwardMapping.Modifiers.Last())->Order = EInputAxisSwizzle::YXZ;
+	MoveBackwardMapping.Modifiers.Add(MoveBackwardNegateModifier);
+	MoveBackwardMapping.Modifiers.Add(MoveBackwardSwizzleModifier);
 
 	FEnhancedActionKeyMapping& MoveLeftMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::A);
-	MoveLeftMapping.Modifiers.Add(NewObject<UInputModifierNegate>(this));
+	MoveLeftMapping.Modifiers.Add(MoveLeftNegateModifier);
 
 	DefaultMappingContext->MapKey(MoveAction, EKeys::D);
 	DefaultMappingContext->MapKey(LookAction, EKeys::Mouse2D);
