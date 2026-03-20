@@ -76,6 +76,7 @@ protected:
 	// 속성 주입 입력용 액션
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputAction> InjectAction;
+	
 	UPROPERTY()
 	TObjectPtr<UInputModifierSwizzleAxis> MoveForwardSwizzleModifier;
 

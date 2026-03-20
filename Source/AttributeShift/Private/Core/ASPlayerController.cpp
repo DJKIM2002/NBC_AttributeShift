@@ -104,35 +104,35 @@ AASCharacter* AASPlayerController::GetASCharacter() const
 
 void AASPlayerController::InitializeInputAssets()
 {
-	DefaultMappingContext = CreateDefaultSubobject<UInputMappingContext>(TEXT("DefaultMappingContext"));
+	DefaultMappingContext = CreateDefaultSubobject<UInputMappingContext>(TEXT("IMC_Default"));
 
-	MoveAction = CreateDefaultSubobject<UInputAction>(TEXT("MoveAction"));
+	MoveAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Move"));
 	MoveAction->ValueType = EInputActionValueType::Axis2D;
 
-	LookAction = CreateDefaultSubobject<UInputAction>(TEXT("LookAction"));
+	LookAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Look"));
 	LookAction->ValueType = EInputActionValueType::Axis2D;
 
-	JumpAction = CreateDefaultSubobject<UInputAction>(TEXT("JumpAction"));
+	JumpAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Jump"));
 	JumpAction->ValueType = EInputActionValueType::Boolean;
 
-	InteractAction = CreateDefaultSubobject<UInputAction>(TEXT("InteractAction"));
+	InteractAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Interact"));
 	InteractAction->ValueType = EInputActionValueType::Boolean;
 
-	ExtractAction = CreateDefaultSubobject<UInputAction>(TEXT("ExtractAction"));
+	ExtractAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Extract"));
 	ExtractAction->ValueType = EInputActionValueType::Boolean;
 
-	InjectAction = CreateDefaultSubobject<UInputAction>(TEXT("InjectAction"));
+	InjectAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Inject"));
 	InjectAction->ValueType = EInputActionValueType::Boolean;
 
-	MoveForwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("MoveForwardSwizzleModifier"));
+	MoveForwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("IM_MoveForwardSwizzle"));
 	MoveForwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
 
-	MoveBackwardNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("MoveBackwardNegateModifier"));
+	MoveBackwardNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("IM_MoveBackwardNegate"));
 
-	MoveBackwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("MoveBackwardSwizzleModifier"));
+	MoveBackwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("IM_MoveBackwardSwizzle"));
 	MoveBackwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
 
-	MoveLeftNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("MoveLeftNegateModifier"));
+	MoveLeftNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("IM_MoveLeftNegate"));
 }
 
 void AASPlayerController::ConfigureDefaultMappingContext()
