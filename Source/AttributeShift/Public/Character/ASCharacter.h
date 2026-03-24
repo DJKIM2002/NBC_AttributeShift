@@ -5,6 +5,8 @@
 #include "ASCharacter.generated.h"
 
 struct FInputActionValue;
+class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class ATTRIBUTESHIFT_API AASCharacter : public ACharacter
@@ -39,11 +41,23 @@ public:
 	void Look(const FInputActionValue& Value);
 
 protected:
-	// 상호작용 판정에 사용할 Trace 거리
+	// 캐릭터 뒤에서 따라오는 스프링 암
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Camera")
+	TObjectPtr<USpringArmComponent> CameraBoom;
+	
+	// 실제 플레이어 시점 카메라
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Camera")
+	TObjectPtr<UCameraComponent> FollowCamera;
+	
+	// 카메라와 캐릭터 사이 거리
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Camera")
+	float TargetArmLength;
+	
+	// 상호작용 트레이스 거리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Interaction")
 	float InteractionTraceDistance;
 
-	// 상하 시점 회전에 사용할 기본 배율
+	// 상하 시점 민감도
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Movement")
 	float LookUpRate;
 };
