@@ -6,8 +6,6 @@
 
 class AASCharacter;
 class UInputAction;
-class UInputModifierNegate;
-class UInputModifierSwizzleAxis;
 class UInputMappingContext;
 
 UCLASS()
@@ -45,12 +43,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Input")
 	AASCharacter* GetASCharacter() const;
 
-	// 코드에서 사용할 입력 액션 객체들을 생성
-	void InitializeInputAssets();
-
-	// 생성한 입력 액션에 기본 키 매핑을 설정
-	void ConfigureDefaultMappingContext();
-
 	// 플레이어에게 기본으로 적용할 입력 매핑 컨텍스트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -78,16 +70,4 @@ protected:
 	// 속성 주입 입력용 액션
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputAction> InjectAction;
-	
-	UPROPERTY()
-	TObjectPtr<UInputModifierSwizzleAxis> MoveForwardSwizzleModifier;
-
-	UPROPERTY()
-	TObjectPtr<UInputModifierNegate> MoveBackwardNegateModifier;
-
-	UPROPERTY()
-	TObjectPtr<UInputModifierSwizzleAxis> MoveBackwardSwizzleModifier;
-
-	UPROPERTY()
-	TObjectPtr<UInputModifierNegate> MoveLeftNegateModifier;
 };

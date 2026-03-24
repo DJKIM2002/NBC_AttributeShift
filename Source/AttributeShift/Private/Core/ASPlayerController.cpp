@@ -3,17 +3,11 @@
 #include "Character/ASCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "InputAction.h"
-#include "InputMappingContext.h"
-#include "InputModifiers.h"
-#include "InputTriggers.h"
 #include "Manager/ASLogManager.h"
 
 AASPlayerController::AASPlayerController()
 {
 	bReplicates = false;
-	InitializeInputAssets();
-	ConfigureDefaultMappingContext();
 }
 
 void AASPlayerController::BeginPlay()
@@ -121,62 +115,4 @@ void AASPlayerController::UpdateHUD()
 AASCharacter* AASPlayerController::GetASCharacter() const
 {
 	return Cast<AASCharacter>(GetPawn());
-}
-
-void AASPlayerController::InitializeInputAssets()
-{
-	DefaultMappingContext = CreateDefaultSubobject<UInputMappingContext>(TEXT("IMC_Default"));
-
-	MoveAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Move"));
-	MoveAction->ValueType = EInputActionValueType::Axis2D;
-
-	LookAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Look"));
-	LookAction->ValueType = EInputActionValueType::Axis2D;
-
-	JumpAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Jump"));
-	JumpAction->ValueType = EInputActionValueType::Boolean;
-
-	InteractAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Interact"));
-	InteractAction->ValueType = EInputActionValueType::Boolean;
-
-	ExtractAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Extract"));
-	ExtractAction->ValueType = EInputActionValueType::Boolean;
-
-	InjectAction = CreateDefaultSubobject<UInputAction>(TEXT("IA_Inject"));
-	InjectAction->ValueType = EInputActionValueType::Boolean;
-
-	MoveForwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("IM_MoveForwardSwizzle"));
-	MoveForwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
-
-	MoveBackwardNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("IM_MoveBackwardNegate"));
-
-	MoveBackwardSwizzleModifier = CreateDefaultSubobject<UInputModifierSwizzleAxis>(TEXT("IM_MoveBackwardSwizzle"));
-	MoveBackwardSwizzleModifier->Order = EInputAxisSwizzle::YXZ;
-
-	MoveLeftNegateModifier = CreateDefaultSubobject<UInputModifierNegate>(TEXT("IM_MoveLeftNegate"));
-}
-
-void AASPlayerController::ConfigureDefaultMappingContext()
-{
-	if (DefaultMappingContext == nullptr)
-	{
-		return;
-	}
-
-	FEnhancedActionKeyMapping& MoveForwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::W);
-	MoveForwardMapping.Modifiers.Add(MoveForwardSwizzleModifier);
-
-	FEnhancedActionKeyMapping& MoveBackwardMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::S);
-	MoveBackwardMapping.Modifiers.Add(MoveBackwardNegateModifier);
-	MoveBackwardMapping.Modifiers.Add(MoveBackwardSwizzleModifier);
-
-	FEnhancedActionKeyMapping& MoveLeftMapping = DefaultMappingContext->MapKey(MoveAction, EKeys::A);
-	MoveLeftMapping.Modifiers.Add(MoveLeftNegateModifier);
-
-	DefaultMappingContext->MapKey(MoveAction, EKeys::D);
-	DefaultMappingContext->MapKey(LookAction, EKeys::Mouse2D);
-	DefaultMappingContext->MapKey(JumpAction, EKeys::SpaceBar);
-	DefaultMappingContext->MapKey(InteractAction, EKeys::F);
-	DefaultMappingContext->MapKey(ExtractAction, EKeys::Q);
-	DefaultMappingContext->MapKey(InjectAction, EKeys::E);
 }
