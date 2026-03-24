@@ -23,20 +23,19 @@ AASCharacter::AASCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 650.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	
+
 	// 스프링 암 생성
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = TargetArmLength;
 	// 컨트롤러 회전에 따라 카메라 암 회전
 	CameraBoom->bUsePawnControlRotation = true;
-	
+
 	// 카메라 생성
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	// 카메라는 암을 따라가고 자체 회전은 하지 않음
 	FollowCamera->bUsePawnControlRotation = false;
-	
 }
 
 void AASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

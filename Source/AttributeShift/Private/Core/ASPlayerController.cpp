@@ -22,7 +22,8 @@ void AASPlayerController::BeginPlay()
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		if (UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<
+			UEnhancedInputLocalPlayerSubsystem>())
 		{
 			if (DefaultMappingContext != nullptr)
 			{
@@ -40,16 +41,36 @@ void AASPlayerController::SetupInputComponent()
 	SetupInput();
 }
 
+void AASPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	// Pawn이 실제로 연결되는 시점에 다시 입력 바인딩 시도
+	if (InputComponent != nullptr)
+	{
+		SetupInput();
+	}
+}
+
 void AASPlayerController::SetupInput()
 {
 	UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
 	AASCharacter* ASCharacter = GetASCharacter();
 
-	if (EnhancedInput == nullptr || ASCharacter == nullptr)
+	if (EnhancedInput == nullptr)
 	{
-		FASLogManager::Warning(TEXT("Input binding skipped because EnhancedInputComponent or Character is missing."));
+		FASLogManager::Warning(TEXT("EnhancedInputComponent가 없어 입력 바인딩을 진행할 수 없습니다."));
 		return;
 	}
+
+	if (ASCharacter == nullptr)
+	{
+		FASLogManager::Warning(TEXT("현재 소유한 캐릭터가 없어 입력 바인딩을 건너뜁니다."));
+		return;
+	}
+
+	// Pawn 재소유 시 중복 바인딩을 막기 위해 기존 액션 바인딩 정리
+	EnhancedInput->ClearActionBindings();
 
 	if (MoveAction != nullptr)
 	{

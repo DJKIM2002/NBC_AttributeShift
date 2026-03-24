@@ -22,6 +22,8 @@ public:
 
 	// InputComponent가 준비되면 실제 액션 바인딩을 수행
 	virtual void SetupInputComponent() override;
+	
+	virtual void SetPawn(APawn* InPawn) override;
 
 	// 액션과 함수 연결을 설정
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Input")
