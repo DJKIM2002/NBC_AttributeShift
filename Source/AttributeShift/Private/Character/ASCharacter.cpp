@@ -6,6 +6,7 @@
 #include "Interaction/Interfaces/ASInteractableInterface.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "DrawDebugHelpers.h"
 
 AASCharacter::AASCharacter()
 	: InteractionTraceDistance(400.0f)
@@ -45,20 +46,21 @@ void AASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AASCharacter::TryInteract()
 {
-	if (AActor* TargetActor = TraceInteractable())
+	AActor* TargetActor = TraceInteractable();
+
+	// 상호작용 가능한 대상이 아니면 아무 것도 하지 않음
+	if (!CanInteractWithActor(TargetActor))
 	{
-		if (TargetActor->GetClass()->ImplementsInterface(UASInteractableInterface::StaticClass()))
-		{
-			if (IASInteractableInterface::Execute_CanInteract(TargetActor, this))
-			{
-				IASInteractableInterface::Execute_Interact(TargetActor, this);
-			}
-		}
+		return;
 	}
+
+	// 이터페이스를 통해 대상 액터에 상호작용 요청
+	IASInteractableInterface::Execute_Interact(TargetActor, this);
 }
 
-AActor* AASCharacter::TraceInteractable() const
+AActor* AASCharacter::TraceInteractable()
 {
+	// 컨트롤러가 없으면 시점을 알 수 없으므로 실패 처리
 	if (Controller == nullptr)
 	{
 		return nullptr;
@@ -68,13 +70,47 @@ AActor* AASCharacter::TraceInteractable() const
 	FRotator ViewRotation;
 	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
+	// 카메라가 바라보는 정면 방향으로 트레이스 끝점 게산
 	const FVector TraceEnd = ViewLocation + (ViewRotation.Vector() * InteractionTraceDistance);
-	FHitResult HitResult;
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(ASCharacterTraceInteractable), false, this);
 
-	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, TraceEnd, ECC_Visibility,
-	                                                       QueryParams);
-	return bHit ? HitResult.GetActor() : nullptr;
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		ViewLocation,
+		TraceEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	DrawDebugLine(GetWorld(), ViewLocation, TraceEnd, bHit ? FColor::Green : FColor::Red, false, 1.0f, 0, 1.5f);
+
+	if (!bHit)
+	{
+		return nullptr;
+	}
+
+	return HitResult.GetActor();
+}
+
+bool AASCharacter::CanInteractWithActor(AActor* TargetActor)
+{
+	// 대상이 없으면 상호작용 불가
+	if (TargetActor == nullptr)
+	{
+		return false;
+	}
+
+	// 인터페이스를 구현하지 않았으면 상호작용 불가
+	if (!TargetActor->GetClass()->ImplementsInterface(UASInteractableInterface::StaticClass()))
+	{
+		return false;
+	}
+
+	// 인터페이스가 있으면 실제 상호작용 가능 여부를 다시 확인
+	return IASInteractableInterface::Execute_CanInteract(TargetActor, this);
 }
 
 void AASCharacter::StartJump()

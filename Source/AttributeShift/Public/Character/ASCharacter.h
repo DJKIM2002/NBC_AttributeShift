@@ -18,13 +18,16 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	// 정면의 상호작용 대상에게 상호작용을 시도
+	// 플레이어가 상호작용 키를 눌렀을 때 호출
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Interaction")
 	void TryInteract();
 
-	// 전방 Line Trace로 상호작용 가능한 액터를 찾음
+	// 전방 트레이스를 통해 상호작용 가능한 액터를 찾음
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Interaction")
-	AActor* TraceInteractable() const;
+	AActor* TraceInteractable();
+	
+	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Interaction")
+	bool CanInteractWithActor(AActor* TargetActor);
 
 	// 점프 시작 입력을 처리
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Movement")
