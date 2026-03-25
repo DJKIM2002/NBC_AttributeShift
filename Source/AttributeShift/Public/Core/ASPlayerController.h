@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ASPlayerState.h"
 #include "GameFramework/PlayerController.h"
 #include "ASPlayerController.generated.h"
 
@@ -70,4 +71,8 @@ protected:
 	// 속성 주입 입력용 액션
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputAction> InjectAction;
+	
+	// PlayerState 가져오기
+	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Player")
+	AASPlayerState* GetASPlayerState() const;
 };

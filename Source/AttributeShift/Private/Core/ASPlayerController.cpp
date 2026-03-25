@@ -116,3 +116,8 @@ AASCharacter* AASPlayerController::GetASCharacter() const
 {
 	return Cast<AASCharacter>(GetPawn());
 }
+
+AASPlayerState* AASPlayerController::GetASPlayerState() const
+{
+	return GetPlayerState<AASPlayerState>();
+}

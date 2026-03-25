@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Manager/ASLogManager.h"
 
 AASCharacter::AASCharacter()
 	: InteractionTraceDistance(400.0f)
@@ -54,7 +55,7 @@ void AASCharacter::TryInteract()
 		return;
 	}
 
-	// 이터페이스를 통해 대상 액터에 상호작용 요청
+	// 인터페이스를 통해 대상 액터에 상호작용 요청
 	IASInteractableInterface::Execute_Interact(TargetActor, this);
 }
 
@@ -85,11 +86,29 @@ AActor* AASCharacter::TraceInteractable()
 		QueryParams
 	);
 
-	DrawDebugLine(GetWorld(), ViewLocation, TraceEnd, bHit ? FColor::Green : FColor::Red, false, 1.0f, 0, 1.5f);
+	DrawDebugLine(
+		GetWorld(),
+		ViewLocation,
+		TraceEnd,
+		bHit ? FColor::Green : FColor::Red,
+		false,
+		1.0f,
+		0,
+		1.5f
+	);
 
 	if (!bHit)
 	{
 		return nullptr;
+	}
+
+	if (bHit && HitResult.GetActor() != nullptr)
+	{
+		UE_LOG(LogAttributeShift, Log, TEXT("Trace Hit Actor: %s"), *HitResult.GetActor()->GetName());
+	}
+	else
+	{
+		UE_LOG(LogAttributeShift, Warning, TEXT("Trace did not hit any actor."));
 	}
 
 	return HitResult.GetActor();
