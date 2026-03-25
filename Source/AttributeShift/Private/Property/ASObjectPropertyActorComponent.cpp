@@ -6,20 +6,57 @@ UASObjectPropertyActorComponent::UASObjectPropertyActorComponent()
 	CurrentPropertyType = EObjectPropertyType::None;
 }
 
-EObjectPropertyType UASObjectPropertyActorComponent::ExtractProperty()
+bool UASObjectPropertyActorComponent::HasProperty() const
 {
-	const EObjectPropertyType ExtractedProperty = CurrentPropertyType;
+	return CurrentPropertyType != EObjectPropertyType::None;
+}
+
+EObjectPropertyType UASObjectPropertyActorComponent::GetCurrentPropertyType() const
+{
+	return CurrentPropertyType;
+}
+
+bool UASObjectPropertyActorComponent::CanExtract() const
+{
+	return HasProperty();
+}
+
+bool UASObjectPropertyActorComponent::CanInject(EObjectPropertyType NewPropertyType) const
+{
+	// None은 주입 불가
+	if (NewPropertyType == EObjectPropertyType::None)
+	{
+		return false;
+	}
+
+	// 이미 속성이 있으면 주입 불가
+	if (HasProperty())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool UASObjectPropertyActorComponent::TryExtractProperty(EObjectPropertyType& OutExtractedPropertyType)
+{
+	if (!CanExtract())
+	{
+		return false;
+	}
+
+	OutExtractedPropertyType = CurrentPropertyType;
 	CurrentPropertyType = EObjectPropertyType::None;
-	RefreshVisualState();
-	return ExtractedProperty;
+	return true;
 }
 
-void UASObjectPropertyActorComponent::ApplyProperty(const EObjectPropertyType InPropertyType)
+bool UASObjectPropertyActorComponent::TryInjectProperty(EObjectPropertyType NewPropertyType)
 {
-	CurrentPropertyType = InPropertyType;
-	RefreshVisualState();
-}
+	if (!CanInject(NewPropertyType))
+	{
+		return false;
+	}
 
-void UASObjectPropertyActorComponent::RefreshVisualState()
-{
+	CurrentPropertyType = NewPropertyType;
+	return true;
 }
