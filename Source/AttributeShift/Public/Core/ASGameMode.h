@@ -14,11 +14,11 @@ class ATTRIBUTESHIFT_API AASGameMode : public AGameModeBase
 public:
 	AASGameMode();
 
-	// 현재 레벨이 클리어 가능한 상태인지 검사
+	// 스테이지 클리어 여부를 확인
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Stage")
 	bool CheckStageClear() const;
 
-	// 스테이지 클리어 처리
+	// 스테이지 클리어 시 후속 처리를 수행
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Stage")
 	void HandleStageClear();
 
@@ -27,10 +27,11 @@ public:
 	void MoveToNextStage();
 
 protected:
+	// 현재 게임 상태를 반환
 	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Stage")
 	AASGameState* GetASGameState() const;
 
-	// 다음에 열 스테이지 이름
+	// 다음 스테이지 맵 이름
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Stage")
 	FName NextStageName;
 };

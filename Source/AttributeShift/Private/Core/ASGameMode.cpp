@@ -25,14 +25,19 @@ bool AASGameMode::CheckStageClear() const
 
 void AASGameMode::HandleStageClear()
 {
-	if (CheckStageClear())
+	// 퍼즐이 해결된 경우에만 다음 처리로 넘어감
+	if (!CheckStageClear())
 	{
-		MoveToNextStage();
+		return;
 	}
+
+	// To-Do: 연출, 사운드, UI 표시가 필요하면 이 지점에 추가
+	MoveToNextStage();
 }
 
 void AASGameMode::MoveToNextStage()
 {
+	// 다음 스테이지 이름이 설정된 경우에만 레벨을 전환
 	if (NextStageName != NAME_None)
 	{
 		UGameplayStatics::OpenLevel(this, NextStageName);
