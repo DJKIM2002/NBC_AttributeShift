@@ -1,50 +1,72 @@
 #include "Core/ASPlayerState.h"
 
 AASPlayerState::AASPlayerState()
-	: CurrentPropertyType(EObjectPropertyType::None)
 {
-}
-
-void AASPlayerState::StoreProperty(const EObjectPropertyType InPropertyType)
-{
-	CurrentPropertyType = InPropertyType;
+	// 시작 시 플레이어는 빈 속성 상태로 초기화
+	CurrentPropertyData.Clear();
 }
 
 bool AASPlayerState::HasProperty() const
 {
-	return CurrentPropertyType != EObjectPropertyType::None;
+	// None이 아니면 현재 속성을 보유 중인 상태
+	return CurrentPropertyData.IsValid();
 }
 
-EObjectPropertyType AASPlayerState::GetCurrentPropertyType() const
+const FASObjectPropertyData& AASPlayerState::GetCurrentPropertyData() const
 {
-	return CurrentPropertyType;
+	return CurrentPropertyData;
 }
 
-bool AASPlayerState::TryAcquireProperty(EObjectPropertyType NewPropertyType)
+bool AASPlayerState::SetCurrentProperty(const FASObjectPropertyData& InPropertyData)
 {
-	// None 속성은 획득 불가
-	if (NewPropertyType == EObjectPropertyType::None)
+	// 유효하지 않은 속성 데이터는 저장하지 않음
+	if (!InPropertyData.IsValid())
 	{
 		return false;
 	}
+	
+	// 현재 속성 데이터를 새 값으로 교체
+	CurrentPropertyData = InPropertyData;
+	
+	// UI 등 외부 시스템에 상태 변경을 알림
+	OnPlayerPropertyChanged.Broadcast(CurrentPropertyData);
+	return true;
+}
 
-	// 이미 속성을 들고 있으면 새 속성을 받을 수 없음
+bool AASPlayerState::TryAcquireProperty(const FASObjectPropertyData& NewPropertyData)
+{
+	// 유효하지 않은 속성은 획득할 수 없음
+	if (!NewPropertyData.IsValid())
+	{
+		return false;
+	}
+	
+	// 이미 속성을 들고 있으면 새 속성을 획득할 수 없음
 	if (HasProperty())
 	{
 		return false;
 	}
-
-	CurrentPropertyType = NewPropertyType;
+	
+	// 새 속성 데이터를 저장
+	CurrentPropertyData = NewPropertyData;
+	
+	// UI 등 외부 시스템에 상태 변경을 알림
+	OnPlayerPropertyChanged.Broadcast(CurrentPropertyData);
 	return true;
 }
 
 bool AASPlayerState::ClearProperty()
 {
+	// 현재 속성이 없으면 비울 것이 없으므로 실패 처리
 	if (!HasProperty())
 	{
 		return false;
 	}
+	
+	// 속성 데이터를 빈 상태로 초기화
+	CurrentPropertyData.Clear();
 
-	CurrentPropertyType = EObjectPropertyType::None;
+	// UI 등 외부 시스템에 상태 변경을 알림
+	OnPlayerPropertyChanged.Broadcast(CurrentPropertyData);
 	return true;
 }

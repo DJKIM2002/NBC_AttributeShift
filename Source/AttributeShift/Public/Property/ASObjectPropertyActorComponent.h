@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Property/ObjectPropertyTypes.h"
+#include "Property/ObjectPropertyData.h"
 #include "ASObjectPropertyActorComponent.generated.h"
 
 UCLASS(ClassGroup=(AttributeShift), meta=(BlueprintSpawnableComponent))
@@ -13,32 +13,40 @@ class ATTRIBUTESHIFT_API UASObjectPropertyActorComponent : public UActorComponen
 public:
 	UASObjectPropertyActorComponent();
 
-	// 현재 속성이 있는지 확인
+	// 현재 속성을 보유하고 있는지 확인
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
 	bool HasProperty() const;
 
-	// 현재 속성 타입 반환
+	// 현재 속성 데이터 반환
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
-	EObjectPropertyType GetCurrentPropertyType() const;
+	const FASObjectPropertyData& GetCurrentPropertyData() const;
 
 	// 현재 상태에서 추출 가능한지 확인
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
 	bool CanExtract() const;
 
-	// 현재 상태에서 특정 속성을 주입 가능한지 확인
+	// 현재 상태에서 속성 적용이 가능한지 확인
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
-	bool CanInject(EObjectPropertyType NewPropertyType) const;
+	bool CanApplyProperty(const FASObjectPropertyData& InPropertyData) const;
 
-	// 현재 속성을 추출하고 오브젝트 상태를 비움
+	// 현재 속성을 추출하고 빈 상태로 만듦
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
-	bool TryExtractProperty(EObjectPropertyType& OutExtractedPropertyType);
+	bool ExtractProperty(FASObjectPropertyData& OutPropertyData);
 
-	// 새 속성을 주입
+	// 새 속성을 오브젝트에 적용
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
-	bool TryInjectProperty(EObjectPropertyType NewPropertyType);
+	bool ApplyProperty(const FASObjectPropertyData& InPropertyData);
 
 protected:
-	// 현재 오브젝트가 보유한 속성
+	// 현재 오브젝트가 보유 중인 속성 데이터
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Property")
-	EObjectPropertyType CurrentPropertyType;
+	FASObjectPropertyData CurrentPropertyData;
+
+	// 속성 변경에 맞춰 비주얼을 갱신
+	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
+	void UpdateVisualByProperty();
+
+	// 속성 변경에 맞춰 물리 속성을 갱신
+	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
+	void UpdatePhysicsByProperty();
 };

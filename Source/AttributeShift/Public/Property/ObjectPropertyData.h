@@ -9,15 +9,29 @@ struct ATTRIBUTESHIFT_API FASObjectPropertyData
 {
 	GENERATED_BODY()
 
-	// 오브젝트가 현재 보유한 속성 타입
+	// 현재 속성 타입
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attribute Shift|Property")
-	EObjectPropertyType CurrentPropertyType = EObjectPropertyType::None;
+	EObjectPropertyType PropertyType = EObjectPropertyType::None;
 
-	// 이 오브젝트에서 속성을 추출할 수 있는지 여부 검사
+	// 속성 강도 값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attribute Shift|Property")
-	bool bCanExtract = true;
+	float Strength = 0.0f;
 
-	// 이 오브젝트에 속성을 주입할 수 있는지 여부 검사
+	// 속성 지속 시간
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attribute Shift|Property")
-	bool bCanInject = true;
+	float Duration = 0.0f;
+
+	// 현재 유효한 속성인지 확인
+	bool IsValid() const
+	{
+		return PropertyType != EObjectPropertyType::None;
+	}
+
+	// 빈 속성 데이터로 초기화
+	void Clear()
+	{
+		PropertyType = EObjectPropertyType::None;
+		Strength = 0.0f;
+		Duration = 0.0f;
+	}
 };

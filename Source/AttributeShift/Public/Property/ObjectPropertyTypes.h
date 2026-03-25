@@ -6,16 +6,27 @@
 UENUM(BlueprintType)
 enum class EObjectPropertyType : uint8
 {
-	// 속성이 비어 있는 상태
+	// 속성이 없는 기본 상태
 	None UMETA(DisplayName = "None"),
 
-	// 수정 필요
-	// 예시 속성 A
-	AttributeA UMETA(DisplayName = "Attribute A"),
+	// 무게 속성
+	Weight UMETA(DisplayName = "Weight"),
 
-	// 예시 속성 B
-	AttributeB UMETA(DisplayName = "Attribute B"),
+	// 탄성 속성
+	Elasticity UMETA(DisplayName = "Elasticity"),
 
-	// 예시 속성 C
-	AttributeC UMETA(DisplayName = "Attribute C")
+	// 온도 속성
+	Temperature UMETA(DisplayName = "Temperature"),
+
+	// 불 속성
+	Fire UMETA(DisplayName = "Fire"),
+
+	// 얼음 속성
+	Ice UMETA(DisplayName = "Ice"),
+
+	// 바람 속성
+	Wind UMETA(DisplayName = "Wind"),
+
+	// 전기 속성
+	Electricity UMETA(DisplayName = "Electricity")
 };
