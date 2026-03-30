@@ -198,6 +198,11 @@ void AASPlayerController::UpdateHUD()
 	// To-Do: 추후 플레이어 보유 속성, 현재 상호작용 대상, 퍼즐 진행도 등을 반영
 }
 
+void AASPlayerController::HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData)
+{
+	UpdateHUD();
+}
+
 AASCharacter* AASPlayerController::GetASCharacter() const
 {
 	return Cast<AASCharacter>(GetPawn());

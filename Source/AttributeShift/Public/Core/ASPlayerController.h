@@ -40,6 +40,10 @@ public:
 	// HUD 갱신
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|UI")
 	void UpdateHUD();
+	
+	// 플레이어 속성 변경 알림 처리
+	UFUNCTION()
+	void HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData);
 
 protected:
 	// 현재 소유 중인 캐릭터 반환
