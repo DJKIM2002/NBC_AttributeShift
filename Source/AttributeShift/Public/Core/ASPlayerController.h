@@ -1,13 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASPlayerState.h"
+#include "Core/ASPlayerState.h"
 #include "GameFramework/PlayerController.h"
 #include "ASPlayerController.generated.h"
 
 class AASCharacter;
 class UInputAction;
 class UInputMappingContext;
+class ASObjectPropertyActorComponent;
 
 UCLASS()
 class ATTRIBUTESHIFT_API AASPlayerController : public APlayerController
@@ -21,7 +22,7 @@ public:
 
 	// InputComponent가 준비되면 실제 액션 바인딩을 수행
 	virtual void SetupInputComponent() override;
-	
+
 	virtual void SetPawn(APawn* InPawn) override;
 
 	// 액션과 함수 연결을 설정
@@ -41,8 +42,17 @@ public:
 	void UpdateHUD();
 
 protected:
+	// 현재 소유 중인 캐릭터 반환
 	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Input")
 	AASCharacter* GetASCharacter() const;
+
+	// 현재 플레이어 상태를 반환
+	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Player")
+	AASPlayerState* GetASPlayerState() const;
+
+	// 현재 바라보는 액터의 속성 컴포넌트를 반환
+	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Interaction")
+	UASObjectPropertyActorComponent* GetTargetPropertyComponent() const;
 
 	// 플레이어에게 기본으로 적용할 입력 매핑 컨텍스트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
@@ -71,8 +81,4 @@ protected:
 	// 속성 주입 입력용 액션
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputAction> InjectAction;
-	
-	// PlayerState 가져오기
-	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Player")
-	AASPlayerState* GetASPlayerState() const;
 };

@@ -4,6 +4,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Manager/ASLogManager.h"
+#include "Property/ASObjectPropertyActorComponent.h"
+#include "GameFramework/Actor.h"
+#include "Core/ASPlayerState.h"
+#include "Property/ObjectPropertyData.h"
 
 AASPlayerController::AASPlayerController()
 {
@@ -100,16 +104,98 @@ void AASPlayerController::SetupInput()
 
 void AASPlayerController::RequestExtract()
 {
-	FASLogManager::Log(TEXT("Extract interaction requested."));
+	AASPlayerState* ASPlayerState = GetASPlayerState();
+	if (ASPlayerState == nullptr)
+	{
+		FASLogManager::Warning(TEXT("플레이어 상태를 찾을 수 없어 추출을 진행할 수 없습니다."));
+		return;
+	}
+
+	// 이미 속성을 들고 있으면 새 속성을 추출 할 수 없음
+	if (ASPlayerState->HasProperty())
+	{
+		FASLogManager::Warning(TEXT("이미 속성을 보유 중이므로 추출할 수 없습니다."));
+		return;
+	}
+
+	// 현재 바라보는 대상의 속성 컴포넌트를 가져옴
+	UASObjectPropertyActorComponent* PropertyComponent = GetTargetPropertyComponent();
+	if (PropertyComponent == nullptr)
+	{
+		FASLogManager::Warning(TEXT("바라보는 대상에서 속성 컴포넌트를 찾을 수 없습니다."));
+		return;
+	}
+
+	FASObjectPropertyData ExtractedPropertyData;
+
+	// 대상에서 속성 추출을 시도
+	if (!PropertyComponent->ExtractProperty(ExtractedPropertyData))
+	{
+		FASLogManager::Warning(TEXT("대상에서 속성 추출에 실패했습니다."));
+		return;
+	}
+
+	// 추출한 속성을 플레이어가 획득할 수 있는지 확인
+	if (!ASPlayerState->TryAcquireProperty(ExtractedPropertyData))
+	{
+		FASLogManager::Warning(TEXT("플레이어가 추출한 속성을 획득할 수 없습니다."));
+
+		// To-Do: 속성 추출 후 획득 실패 시 원상 복구
+		return;
+	}
+
+	FASLogManager::Log(TEXT("속성 추출에 성공했습니다!"));
+	UpdateHUD();
 }
 
 void AASPlayerController::RequestInject()
 {
-	FASLogManager::Log(TEXT("Inject interaction requested."));
+	AASPlayerState* ASPlayerState = GetASPlayerState();
+	if (ASPlayerState == nullptr)
+	{
+		FASLogManager::Warning(TEXT("플레이어 상태를 찾을 수 없어 주입을 진행할 수 없습니다."));
+		return;
+	}
+
+	// 현재 플레이어가 들고 있는 속성이 없으면 주입 불가
+	if (!ASPlayerState->HasProperty())
+	{
+		FASLogManager::Warning(TEXT("보유 중인 속성이 없어 주입할 수 없습니다."));
+		return;
+	}
+
+	// 현재 바라보는 대상의 속성 컴포넌트를 가져옴
+	UASObjectPropertyActorComponent* PropertyComponent = GetTargetPropertyComponent();
+	if (PropertyComponent == nullptr)
+	{
+		FASLogManager::Warning(TEXT("바라보는 대상에서 속성 컴포넌트를 찾을 수 없습니다."));
+		return;
+	}
+
+	// 현재 플레이어가 들고 있는 속성 데이터를 가져옴
+	const FASObjectPropertyData CurrentPropertyData = ASPlayerState->GetCurrentPropertyData();
+
+	// 대상 오브젝트에 속성 적용을 시도
+	if (!PropertyComponent->ApplyProperty(CurrentPropertyData))
+	{
+		FASLogManager::Warning(TEXT("대상 오브젝트에 속성 주입에 실패했습니다."));
+		return;
+	}
+
+	// 주입에 성공했으면 플레이어 속성을 비움
+	if (!ASPlayerState->ClearProperty())
+	{
+		FASLogManager::Warning(TEXT("주입 후 플레이어 속성 초기화에 실패했습니다."));
+		return;
+	}
+
+	FASLogManager::Log(TEXT("속성 주입에 성공했습니다!"));
+	UpdateHUD();
 }
 
 void AASPlayerController::UpdateHUD()
 {
+	// To-Do: 추후 플레이어 보유 속성, 현재 상호작용 대상, 퍼즐 진행도 등을 반영
 }
 
 AASCharacter* AASPlayerController::GetASCharacter() const
@@ -120,4 +206,21 @@ AASCharacter* AASPlayerController::GetASCharacter() const
 AASPlayerState* AASPlayerController::GetASPlayerState() const
 {
 	return GetPlayerState<AASPlayerState>();
+}
+
+UASObjectPropertyActorComponent* AASPlayerController::GetTargetPropertyComponent() const
+{
+	AASCharacter* ASCharacter = GetASCharacter();
+	if (ASCharacter == nullptr)
+	{
+		return nullptr;
+	}
+
+	AActor* TargetActor = ASCharacter->TraceInteractable();
+	if (TargetActor == nullptr)
+	{
+		return nullptr;
+	}
+
+	return TargetActor->FindComponentByClass<UASObjectPropertyActorComponent>();
 }
