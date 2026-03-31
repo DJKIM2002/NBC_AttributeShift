@@ -1,15 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/ASPlayerState.h"
 #include "GameFramework/PlayerController.h"
 #include "Property/ObjectPropertyData.h"
 #include "ASPlayerController.generated.h"
 
 class AASCharacter;
+class AASPlayerState;
+class AASHUDBase;
 class UInputAction;
 class UInputMappingContext;
-class ASObjectPropertyActorComponent;
+class UASObjectPropertyActorComponent;
+
 
 UCLASS()
 class ATTRIBUTESHIFT_API AASPlayerController : public APlayerController
@@ -21,24 +23,25 @@ public:
 
 	virtual void BeginPlay() override;
 
-	// InputComponent가 준비되면 실제 액션 바인딩을 수행
+	// 입력 컴포넌트 준비 시 입력 바인딩을 설정
 	virtual void SetupInputComponent() override;
 
+	// Pawn 소유 시점에 입력 및 HUD 참조를 재정리
 	virtual void SetPawn(APawn* InPawn) override;
 
-	// 액션과 함수 연결을 설정
+	// 입력 액션과 실제 함수를 연결
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Input")
 	void SetupInput();
 
-	// Extract 입력이 들어왔을 때 호출
+	// 속성 추출 입력 요청을 처리
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Interaction")
 	void RequestExtract();
 
-	// Inject 입력이 들어왔을 때 호출
+	// 속성 주입 입력 요청을 처리
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Interaction")
 	void RequestInject();
 
-	// HUD 갱신
+	// 현재 플레이어 상태를 기준으로 HUD를 갱신
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|UI")
 	void UpdateHUD();
 
@@ -51,9 +54,22 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Player")
 	AASPlayerState* GetASPlayerState() const;
 
+	// 현재 캐싱된 HUD 반환
+	AASHUDBase* GetASHUD() const;
+
 	// 현재 바라보는 액터의 속성 컴포넌트를 반환
 	UFUNCTION(BlueprintPure, Category = "Attribute Shift|Interaction")
 	UASObjectPropertyActorComponent* GetTargetPropertyComponent() const;
+
+	// 플레이어 속성 변경 이벤트 처리
+	UFUNCTION()
+	void HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData);
+
+	// 플레이어 상태의 UI 갱신 이벤트 바인딩
+	void BindPlayerStateEvents();
+
+	// HUD 참조를 캐싱
+	void CacheHUDReference();
 
 	// 플레이어에게 기본으로 적용할 입력 매핑 컨텍스트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
@@ -83,10 +99,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Shift|Input")
 	TObjectPtr<UInputAction> InjectAction;
 
-	// 플레이어 속성 변경 이벤트 처리
-	UFUNCTION()
-	void HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData);
-
-	// 플레이어 상태의 UI 갱신 이벤트 바인딩
-	void BindPlayerStateEvents();
+	// 현재 컨트롤러가 사용하는 HUD 참조
+	UPROPERTY()
+	TObjectPtr<AASHUDBase> CachedHUD;
 };

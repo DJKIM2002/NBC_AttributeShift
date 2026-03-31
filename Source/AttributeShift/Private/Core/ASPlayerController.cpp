@@ -1,13 +1,13 @@
 #include "Core/ASPlayerController.h"
 
 #include "Character/ASCharacter.h"
+#include "Core/ASPlayerState.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/Actor.h"
 #include "Manager/ASLogManager.h"
 #include "Property/ASObjectPropertyActorComponent.h"
-#include "GameFramework/Actor.h"
-#include "Core/ASPlayerState.h"
-#include "Property/ObjectPropertyData.h"
+#include "UI/HUD/ASHUDBase.h"
 
 AASPlayerController::AASPlayerController()
 {
@@ -30,9 +30,13 @@ void AASPlayerController::BeginPlay()
 		}
 	}
 
+	// 플레이 시작 시 HUD 참조를 먼저 확보
+	CacheHUDReference();
+
 	// 플레이어 상태 이벤트를 HUD 갱신 로직과 연결
 	BindPlayerStateEvents();
 
+	// 시작 시점의 HUD 상태를 한 번 갱신
 	UpdateHUD();
 }
 
@@ -52,10 +56,11 @@ void AASPlayerController::SetPawn(APawn* InPawn)
 		SetupInput();
 	}
 
-	// Pawn 소유 시점에 플레이어 상태 이벤트도 다시 연결
+	// Pawn 소유 시점에 HUD 참조와 플레이어 상태 이벤트도 다시 정리
+	CacheHUDReference();
 	BindPlayerStateEvents();
 
-	// 소유 대상 변경에 맞춰 HUD를 갱신
+	// 현재 소유 상태에 맞게 HUD를 갱신
 	UpdateHUD();
 }
 
@@ -205,6 +210,21 @@ void AASPlayerController::RequestInject()
 void AASPlayerController::UpdateHUD()
 {
 	// To-Do: 추후 플레이어 보유 속성, 현재 상호작용 대상, 퍼즐 진행도 등을 반영
+	if (CachedHUD == nullptr)
+	{
+		CacheHUDReference();
+	}
+
+	AASPlayerState* ASPlayerState = GetASPlayerState();
+	if (ASPlayerState == nullptr || CachedHUD == nullptr)
+	{
+		return;
+	}
+
+	CachedHUD->UpdatePropertyDisplay(
+		ASPlayerState->GetCurrentPropertyDisplayName(),
+		ASPlayerState->HasProperty()
+	);
 }
 
 void AASPlayerController::HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData)
@@ -225,6 +245,11 @@ void AASPlayerController::BindPlayerStateEvents()
 	ASPlayerState->OnPlayerPropertyChanged.AddDynamic(this, &AASPlayerController::HandlePlayerPropertyChanged);
 }
 
+void AASPlayerController::CacheHUDReference()
+{
+	CachedHUD = Cast<AASHUDBase>(GetHUD());
+}
+
 AASCharacter* AASPlayerController::GetASCharacter() const
 {
 	return Cast<AASCharacter>(GetPawn());
@@ -233,6 +258,11 @@ AASCharacter* AASPlayerController::GetASCharacter() const
 AASPlayerState* AASPlayerController::GetASPlayerState() const
 {
 	return GetPlayerState<AASPlayerState>();
+}
+
+AASHUDBase* AASPlayerController::GetASHUD() const
+{
+	return CachedHUD;
 }
 
 UASObjectPropertyActorComponent* AASPlayerController::GetTargetPropertyComponent() const
