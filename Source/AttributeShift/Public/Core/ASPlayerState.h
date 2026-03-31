@@ -5,6 +5,7 @@
 #include "Property/ObjectPropertyData.h"
 #include "ASPlayerState.generated.h"
 
+// 플레이어 보유 속성이 바뀌었을 때 알리는 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerPropertyChanged, const FASObjectPropertyData&, NewPropertyData);
 
 UCLASS()
@@ -22,6 +23,14 @@ public:
 	// 현재 플레이어가 들고 있는 속성 데이터 반환
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
 	const FASObjectPropertyData& GetCurrentPropertyData() const;
+	
+	// UI에서 표시할 현재 속성 타입 반환
+	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
+	EObjectPropertyType GetCurrentPropertyType() const;
+	
+	// UI에서 표시할 현재 속성 이름 반환
+	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
+	FText GetCurrentPropertyDisplayName() const;
 
 	// 플레이어에게 새 속성 데이터를 저장
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")

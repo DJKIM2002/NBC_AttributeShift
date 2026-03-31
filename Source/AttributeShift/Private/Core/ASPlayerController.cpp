@@ -30,6 +30,9 @@ void AASPlayerController::BeginPlay()
 		}
 	}
 
+	// 플레이어 상태 이벤트를 HUD 갱신 로직과 연결
+	BindPlayerStateEvents();
+
 	UpdateHUD();
 }
 
@@ -48,6 +51,12 @@ void AASPlayerController::SetPawn(APawn* InPawn)
 	{
 		SetupInput();
 	}
+
+	// Pawn 소유 시점에 플레이어 상태 이벤트도 다시 연결
+	BindPlayerStateEvents();
+
+	// 소유 대상 변경에 맞춰 HUD를 갱신
+	UpdateHUD();
 }
 
 void AASPlayerController::SetupInput()
@@ -201,6 +210,19 @@ void AASPlayerController::UpdateHUD()
 void AASPlayerController::HandlePlayerPropertyChanged(const FASObjectPropertyData& NewPropertyData)
 {
 	UpdateHUD();
+}
+
+void AASPlayerController::BindPlayerStateEvents()
+{
+	AASPlayerState* ASPlayerState = GetASPlayerState();
+	if (ASPlayerState == nullptr)
+	{
+		return;
+	}
+
+	// 중복 바인딩을 방지하기 위해 기존 바인딩 제거한 뒤 재연결
+	ASPlayerState->OnPlayerPropertyChanged.RemoveDynamic(this, &AASPlayerController::HandlePlayerPropertyChanged);
+	ASPlayerState->OnPlayerPropertyChanged.AddDynamic(this, &AASPlayerController::HandlePlayerPropertyChanged);
 }
 
 AASCharacter* AASPlayerController::GetASCharacter() const
