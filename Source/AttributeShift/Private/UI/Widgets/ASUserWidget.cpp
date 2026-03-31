@@ -13,7 +13,7 @@ void UASUserWidget::UpdatePropertyDisplay(const FText& PropertyNameText, bool bH
 	// 현재 속성이 없으면 기본 문구를 표시
 	if (!bHasProperty)
 	{
-		Text_CurrentProperty->SetText(FText::FromString("속성 없음"));
+		Text_CurrentProperty->SetText(FText::FromString(TEXT("속성 없음")));
 		return;
 	}
 

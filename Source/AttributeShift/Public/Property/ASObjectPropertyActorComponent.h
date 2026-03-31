@@ -38,6 +38,8 @@ public:
 	bool ApplyProperty(const FASObjectPropertyData& InPropertyData);
 
 protected:
+	virtual void BeginPlay() override;
+	
 	// 현재 오브젝트가 보유 중인 속성 데이터
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Property")
 	FASObjectPropertyData CurrentPropertyData;
@@ -49,4 +51,44 @@ protected:
 	// 속성 변경에 맞춰 물리 속성을 갱신
 	UFUNCTION(BlueprintCallable, Category = "Attribute Shift|Property")
 	void UpdatePhysicsByProperty();
+
+	// 속성이 없을 때 사용할 기본 색상
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Visual")
+	FLinearColor DefaultColor = FLinearColor::White;
+
+	// '불' 속성일 때 사용할 색상
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Visual")
+	FLinearColor FireColor = FLinearColor(1.0f, 0.2f, 0.0f, 1.0f);
+
+	// '얼음' 속성일 때 사용할 색상
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Visual")
+	FLinearColor IceColor = FLinearColor(0.2f, 0.6f, 1.0f, 1.0f);
+
+	// '전기' 속성일 때 사용할 색상
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Visual")
+	FLinearColor ElectricityColor = FLinearColor(1.0f, 1.0f, 0.2f, 1.0f);
+
+	// '바람' 속성일 때 사용할 색상
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Visual")
+	FLinearColor WindColor = FLinearColor(0.7f, 1.0f, 0.9f, 1.0f);
+
+	// 기본 질량 배율
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Physics")
+	float DefaultMassScale = 1.0f;
+
+	// 기본 선형 감쇠값
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Physics")
+	float DefaultLinearDamping = 0.01f;
+
+	// '무게' 속성 적용 시 질량 배율
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Physics")
+	float WeightMassScale = 3.0f;
+
+	// '얼음' 속성 적용 시 선형 감쇠값
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribute Shift|Physics")
+	float IceLinearDamping = 0.0f;
+
+private:
+	// 속성 적용 대상을 찾음
+	UPrimitiveComponent* FindTargetPrimitiveComponent() const;
 };
